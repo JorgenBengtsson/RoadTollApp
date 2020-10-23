@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RoadTollAPI.Context;
@@ -13,6 +14,7 @@ using RoadTollAPI.Entities;
 namespace RoadTollAPI.Controllers
 {
     [Route("api/[controller]")]
+    [EnableCors("CORSPolicy")]
     [ApiController]
     public class TollsController : ControllerBase
     {
@@ -32,8 +34,10 @@ namespace RoadTollAPI.Controllers
 
         [HttpGet]
         [Route("[action]/{month}")]
-        public IEnumerable<TollDTO> GetAllByMonth(int month)
+        public ActionResult<IEnumerable<TollDTO>> GetAllByMonth(int month)
         {
+            if (month < 1 || month > 12) return new NotFoundObjectResult(new { message = "Month out of range" });
+
             var tolls = new List<TollDTO>();
 
             foreach( var toll in _context.Tolls.Include(t => t.car).ToArray())
@@ -49,30 +53,53 @@ namespace RoadTollAPI.Controllers
             var tolls = new List<TollDTO>();
             var car = _context.Cars.Where(c => c.regnr == regnr).Include(c => c.tolls).FirstOrDefault();
 
-            foreach (var toll in car.tolls )
-                if (toll.date.Month == month)
-                    tolls.Add(new TollDTO { date = toll.date, rate = 0 });
+            if (car != null)
+            {
+                foreach (var toll in car.tolls)
+                    if (toll.date.Month == month)
+                        tolls.Add(new TollDTO { date = toll.date, rate = 0 });
+            }
 
             return tolls;
         }
 
         // GET api/<TollsController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public Toll Get(int id)
         {
-            return "value";
+            return _context.Tolls.Where(t => t.id == id).FirstOrDefault();
         }
 
         // POST api/<TollsController>
         [HttpPost]
         public void Post([FromBody] string value)
         {
+            var car = _context.Cars.Where(c => c.id == 1);
         }
 
         // PUT api/<TollsController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public ActionResult Put(int id, [FromBody] Toll value)
         {
+            var toll = _context.Tolls.Find(id);
+
+            if (toll != null)
+            {
+                try
+                {
+                    toll.date = value.date;
+                    _context.SaveChanges();
+                } catch(Exception e)
+                {
+                    return new NotFoundObjectResult(new { success= false, message = "Error while updating!", errorMessage = e.Message });
+                }
+
+                return new OkObjectResult(new { success = true, message = "Toll updated" });
+                
+            } else
+            {
+                return new NotFoundObjectResult(new { success = false, message = "Toll not found with id", id = id });
+            }
         }
 
         // DELETE api/<TollsController>/5

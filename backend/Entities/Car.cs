@@ -15,8 +15,6 @@ namespace RoadTollAPI.Entities
         public int CarOfOwnerId { get; set; }
         public virtual Owner owner { get; set; }
 
-        public IList<DayCar> daycars { get; set; }
-
         public IList<Toll> tolls { get; set; }
     }
 }

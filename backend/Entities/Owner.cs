@@ -13,6 +13,7 @@ namespace RoadTollAPI.Entities
         public string name { get; set; }
         public int age { get; set; }
         public string adress { get; set; }
+        
 
         public virtual Car car { get; set; }
     }

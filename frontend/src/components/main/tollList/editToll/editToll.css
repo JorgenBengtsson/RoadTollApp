@@ -1,0 +1,15 @@
+.editModal {
+  padding: 20px;
+}
+
+.updateButton {
+  margin: 5px 0 5px 0;
+}
+
+.message {
+  padding: 5px 0 5px 0;
+}
+
+.message.error {
+  color: red;
+}

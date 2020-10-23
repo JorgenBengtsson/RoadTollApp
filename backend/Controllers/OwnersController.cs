@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RoadTollAPI.Context;
 using RoadTollAPI.Entities;
+using RoadTollAPI.ActionResults;
+using Microsoft.AspNetCore.Identity;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -44,22 +46,36 @@ namespace RoadTollAPI.Controllers
 
         // POST api/<OwnersController>
         [HttpPost]
-        public void Post([FromBody] Owner owner)
-        {
+        public void Post([FromBody] Owner owner) {
             _context.Owners.Add(owner);
             _context.SaveChanges();
         }
 
         [HttpPut("{id}")]
-        public void Update(int id, [FromBody] Owner owner)
+        public IActionResult Update(int id, [FromBody] Owner owner)
         {
             var o = _context.Owners.SingleOrDefault(o => o.id == id);
-            
-            o.name = owner.name;
-            o.age = owner.age;
-            o.adress = owner.adress;
 
-            _context.SaveChanges();
+            if (o != null)
+            {
+                o.name = owner.name;
+                o.age = owner.age;
+                o.adress = owner.adress;
+
+                try
+                {
+                    _context.SaveChanges();
+                }
+                catch (Exception e)
+                {
+                    return new BadRequestObjectResult(new { status = "Error", message = "Unable to make update to id: " + id, errorMessage = e.Message });
+                }
+                return Ok(new { message = "Object with id: " + id + " was updated correctly" });
+            }
+            else
+            {
+                return StatusCode(404); // new NotFoundResult();
+            }
         }
 
         // DELETE api/<OwnersController>/5

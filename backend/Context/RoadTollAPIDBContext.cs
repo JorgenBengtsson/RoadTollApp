@@ -6,17 +6,14 @@ namespace RoadTollAPI.Context
 {
     public class RoadTollAPIDBContext : DbContext
     {
-        // All entities need to be "listed" here or the Entity Framework don't "know" about them
-        public DbSet<Owner> Owners { set; get; }
-        public DbSet<Car> Cars { set; get; }
-        public DbSet<Day> Days { set; get; }
-        public DbSet<DayCar> DayCars { set; get; }
-
-        public DbSet<Toll> Tolls { set; get; }
-
         public RoadTollAPIDBContext(DbContextOptions<RoadTollAPIDBContext> options) : base(options)
         {
         }
+
+        // All entities need to be "listed" here or the Entity Framework don't "know" about them
+        public DbSet<Owner> Owners { set; get; }
+        public DbSet<Car> Cars { set; get; }
+        public DbSet<Toll> Tolls { set; get; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -31,9 +28,6 @@ namespace RoadTollAPI.Context
                 .HasOne<Car>(o => o.car)
                 .WithOne(c => c.owner)
                 .HasForeignKey<Car>(c => c.CarOfOwnerId);
-
-            // Car and Day many-to-many relationship
-            modelBuilder.Entity<DayCar>().HasKey(sc => new { sc.dayId, sc.carId });
 
             // Toll and Car one-to-many relationship
             modelBuilder.Entity<Toll>()

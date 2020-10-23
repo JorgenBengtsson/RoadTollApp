@@ -10,8 +10,8 @@ using RoadTollAPI.Context;
 namespace RoadTollAPI.Migrations
 {
     [DbContext(typeof(RoadTollAPIDBContext))]
-    [Migration("20201016123216_AddToll")]
-    partial class AddToll
+    [Migration("20201022102142_InitDatabase")]
+    partial class InitDatabase
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -40,36 +40,6 @@ namespace RoadTollAPI.Migrations
                         .IsUnique();
 
                     b.ToTable("Cars");
-                });
-
-            modelBuilder.Entity("RoadTollAPI.Entities.Day", b =>
-                {
-                    b.Property<int>("id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<DateTime>("day")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("id");
-
-                    b.ToTable("Days");
-                });
-
-            modelBuilder.Entity("RoadTollAPI.Entities.DayCar", b =>
-                {
-                    b.Property<int>("dayId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("carId")
-                        .HasColumnType("int");
-
-                    b.HasKey("dayId", "carId");
-
-                    b.HasIndex("carId");
-
-                    b.ToTable("DayCars");
                 });
 
             modelBuilder.Entity("RoadTollAPI.Entities.Owner", b =>
@@ -118,21 +88,6 @@ namespace RoadTollAPI.Migrations
                     b.HasOne("RoadTollAPI.Entities.Owner", "owner")
                         .WithOne("car")
                         .HasForeignKey("RoadTollAPI.Entities.Car", "CarOfOwnerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("RoadTollAPI.Entities.DayCar", b =>
-                {
-                    b.HasOne("RoadTollAPI.Entities.Car", "car")
-                        .WithMany("daycars")
-                        .HasForeignKey("carId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("RoadTollAPI.Entities.Day", "day")
-                        .WithMany("daycars")
-                        .HasForeignKey("dayId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
